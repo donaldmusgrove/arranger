@@ -4,7 +4,7 @@
 \alias{arrange_rtf}
 \title{Arranger RTF files using a Shiny UI.}
 \usage{
-arrange_rtf(path_save, copy_local = TRUE)
+arrange_rtf(path_save)
 }
 \arguments{
 \item{path_save}{Optional. Desired location of the lookup file. Users

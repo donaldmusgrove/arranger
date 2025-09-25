@@ -47,7 +47,7 @@
 #' @import stringr
 #' @import striprtf
 #' @export
-arrange_rtf <- function(path_save, copy_local=TRUE){
+arrange_rtf <- function(path_save){
 
   # Check path input
   mf <- match.call(expand.dots = FALSE)
@@ -90,10 +90,8 @@ arrange_rtf <- function(path_save, copy_local=TRUE){
     # Filename table display
     #---------------------------------------------------------------------------
     # Create new filepath to path_temp_rtf
-    if(copy_local){
-      path_temp_rtf <- file.path(tempdir(), sample(1000:9099,1))
-      dir.create(path_temp_rtf)
-    }
+    path_temp_rtf <- file.path(tempdir(), sample(1000:9099,1))
+    dir.create(path_temp_rtf)
 
     # Put table/rtf info in a nice format for display
     data_files <- reactive({
@@ -105,15 +103,11 @@ arrange_rtf <- function(path_save, copy_local=TRUE){
         rtf_upload <- tibble(file_info())
 
         # Copy uploaded files to path_temp_rtf
-        if(copy_local){
-          FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
-          c1          <- file.copy(rtf_upload$datapath, FilePathNew)
+        FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
+        c1          <- file.copy(rtf_upload$datapath, FilePathNew)
 
-          # In case of multiple RTF selections, get the list of files again
-          FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
-        } else{
-          FilePathReNew <- normalizePath(list.files(rtf_upload$datapath, full.names=TRUE))
-        }
+        # In case of multiple RTF selections, get the list of files again
+        FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
 
         # Load RTF files as vectors of strings into a list
         files_rtf <- lapply(FilePathReNew, read_rtf)
