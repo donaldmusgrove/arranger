@@ -46,6 +46,7 @@
 #' @import shiny
 #' @import stringr
 #' @import striprtf
+#' @importFrom utils write.csv
 #' @export
 arrange_rtf <- function(path_save){
 
