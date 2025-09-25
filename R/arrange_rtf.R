@@ -47,7 +47,7 @@
 #' @import stringr
 #' @import striprtf
 #' @export
-arrange_rtf <- function(path_save){
+arrange_rtf <- function(path_save, copy_local=TRUE){
 
   # Check path input
   mf <- match.call(expand.dots = FALSE)
@@ -81,27 +81,6 @@ arrange_rtf <- function(path_save){
   server <- function(input, output, session) {
 
     #---------------------------------------------------------------------------
-    # Function: parse out table name
-    #---------------------------------------------------------------------------
-    parse_table_name <- function(x){
-      x0 <- x[str_detect(tolower(x), "\\*\\| table")]
-
-      # Remove leading cell
-      x1 <- trimws(str_remove(x0, "\\*\\|"))
-
-      # Remove ending Cell
-      x2 <- str_remove(x1, "\n \\|")
-
-      # Remove double spaces
-      x3 <- str_squish(x2)
-
-      if(length(x3) == 0){
-        x3 <- NA
-      }
-      x3
-    }
-
-    #---------------------------------------------------------------------------
     # File information
     #---------------------------------------------------------------------------
     # Get file name and path
@@ -111,9 +90,10 @@ arrange_rtf <- function(path_save){
     # Filename table display
     #---------------------------------------------------------------------------
     # Create new filepath to path_temp_rtf
-    path_temp_rtf <- file.path(tempdir(), sample(1000:9099,1))
-    dir.create(path_temp_rtf)
-
+    if(copy_local){
+      path_temp_rtf <- file.path(tempdir(), sample(1000:9099,1))
+      dir.create(path_temp_rtf)
+    }
 
     # Put table/rtf info in a nice format for display
     data_files <- reactive({
@@ -125,18 +105,22 @@ arrange_rtf <- function(path_save){
         rtf_upload <- tibble(file_info())
 
         # Copy uploaded files to path_temp_rtf
-        FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
-        c1          <- file.copy(rtf_upload$datapath, FilePathNew)
+        if(copy_local){
+          FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
+          c1          <- file.copy(rtf_upload$datapath, FilePathNew)
 
-        # In case of multiple RTF selections, get the list of files again
-        FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
+          # In case of multiple RTF selections, get the list of files again
+          FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
+        } else{
+          FilePathReNew <- normalizePath(list.files(rtf_upload$datapath, full.names=TRUE))
+        }
 
         # Load RTF files as vectors of strings into a list
         files_rtf <- lapply(FilePathReNew, read_rtf)
 
         # Format rtf files for display
         rtf_order <- tibble(`File Name`  = basename(FilePathReNew),
-                            `Table Name` = unlist(sapply(files_rtf, parse_table_name)),
+                            `Table Name` = unlist(sapply(files_rtf, parse_caption_rtf)),
                             FilePath     = FilePathReNew)
 
         rtf_order$`Table Name` <- ifelse(is.na(rtf_order$`Table Name`),
@@ -205,3 +189,57 @@ arrange_rtf <- function(path_save){
 
   shinyApp(ui=ui, server=server)
 }
+
+
+
+
+#' RTF caption parser
+#'
+#' \code{parse_caption_rtf} is used to parse out the caption from an RTF file
+#'   created by `r2rtf`.
+#'
+#' @param x character. Should be a multi-vector result of using `striprtf::read_rtf`
+#'   to load an RTF file.
+#'
+#' @details `parse_caption_rtf` tries to parse out the table or figure caption from
+#'   an RTF. The function finds the first instance of figure or table in the RTF.
+#'   Next, it selects the lines containing figure or table and minimal clean-up is
+#'   attempted to present a well-formatted result.
+#'
+#' @returns A character string.
+#'
+#' @examples
+#' \dontrun{
+#' # Create an RTF
+#' file <- tempfile(fileext = ".rtf")
+#'
+#' file1 <- head(iris) %>%
+#'   rtf_title(title = "Table 1. My table") %>%
+#'   rtf_body() %>%
+#'   rtf_encode() %>%
+#'   write_rtf(file)
+#'
+#' x <- striprtf::read_rtf(file)
+#'
+#' parse_caption_rtf(x)
+#' }
+#'
+#' @export
+parse_caption_rtf <- function(x){
+  x0 <- x[str_detect(tolower(x), "table|figure")][1]
+
+  # Remove any leading cell
+  x1 <- trimws(str_remove(x0, "\\*\\|"))
+
+  # Remove any ending Cell
+  x2 <- str_remove(x1, "\n \\|")
+
+  # Remove double spaces
+  x3 <- str_squish(x2)
+
+  if(length(x3) == 0){
+    x3 <- NA
+  }
+  x3
+}
+
