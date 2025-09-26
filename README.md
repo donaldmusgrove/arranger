@@ -1,2 +1,11 @@
-# arranger
-Arrange things using viz tools
+
+<!-- badges: start -->
+
+[![Codecov test
+coverage](https://codecov.io/gh/donaldmusgrove/arranger/graph/badge.svg)](https://app.codecov.io/gh/donaldmusgrove/arranger)
+<!-- badges: end -->
+
+## arranger
+
+The {arranger} package provides a UI for arranging files. More details
+coming soon
