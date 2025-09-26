@@ -20,23 +20,13 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
       - uses: r-lib/actions/setup-pandoc@v2
 
-      # Install dependencies
-      - name: Install cURL Headers
-        run: sudo apt-get update && sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
-
       # Install packages needed
       - name: install required packages
-        run: Rscript -e 'install.packages(c("devtools", "rmarkdown", "yamlme"), dependencies = TRUE)'
-
-      # Install package from GitHub
-      - name: install from GitHub
-        run: Rscript -e 'library(devtools);install_github("donaldmusgrove/arranger", dependencies = TRUE)'
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: Rscript -e 'install.packages("rmarkdown")'
 
       # Render README.md using rmarkdown
       - name: render README
-        run: Rscript -e 'rmarkdown::render("README.Rmd")'
+        run: Rscript -e 'rmarkdown::render("arranger/README.Rmd")'
 
       - name: commit rendered README
         run: |
