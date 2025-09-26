@@ -1,6 +1,6 @@
 Package: arranger
 Title: Arrange Files Using Shiny
-Version: 0.1.0.0
+Version: 0.1.0
 Authors@R: 
     person("Donnie", "Musgrove", , "donniemusgrove@gmai.com", role = c("aut", "cre"))
 Description: Coming soon.
@@ -8,3 +8,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Suggests: 
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Language: en-US

@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^arranger\.Rproj$
 ^LICENSE\.md$
+^codecov\.yml$
+^\.github$
