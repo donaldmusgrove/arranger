@@ -28,6 +28,12 @@ jobs:
       - name: install required packages
         run: Rscript -e 'install.packages(c("devtools", "rmarkdown", "yamlme"), dependencies = TRUE)'
 
+      # Install package from GitHub
+      - name: install from GitHub
+        run: Rscript -e 'library(devtools);install_github("donaldmusgrove/arranger", dependencies = TRUE)'
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
       # Render README.md using rmarkdown
       - name: render README
         run: Rscript -e 'rmarkdown::render("README.Rmd")'
