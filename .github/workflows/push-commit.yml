@@ -15,7 +15,6 @@ jobs:
         env:
           CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
           CI_COMMIT_AUTHOR: Continuous Integration
-
         run: |
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email 'donaldmusgrove@users.noreply.github.com'
