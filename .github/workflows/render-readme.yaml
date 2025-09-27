@@ -1,32 +1,42 @@
-name: render readme
-
-# Controls when the action will run
 on:
   push:
     branches: main
 
+name: render-readme
+
 jobs:
   render:
-    # The type of runner that the job will run on
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-    - uses: r-lib/actions/setup-r@v1
-    - uses: r-lib/actions/setup-pandoc@v1
+    # Checks-out repo
+    - uses: actions/checkout@v4
 
-    # install packages needed
+    # Set-up R
+    - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 4.4.2
+          use-public-rspm: true
+
+    # Install Pandoc
+    - uses: r-lib/actions/setup-pandoc@v2
+
+    # Install dependencies
+    - name: Install cURL Headers
+      run: sudo apt-get update && sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+
+    # install rmarkdown package
     - name: install required packages
-      run: Rscript -e 'install.packages(c("rmarkdown","gratia"))'
+      run: Rscript -e 'install.packages("rmarkdown", dependencies = TRUE)'
 
     # Render READEME.md using rmarkdown
-    - name: render README
+    - name: render-readme
       run: Rscript -e 'rmarkdown::render("README.Rmd", output_format = "md_document")'
 
     - name: commit rendered README
       run: |
-        git add README.md man/figures/README-*
         git commit -m "Re-build README.md" || echo "No changes to commit"
-        git push origin master || echo "No changes to commit"
+        git push origin || echo "No changes to commit"
 
