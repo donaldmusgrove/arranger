@@ -8,7 +8,6 @@ output: github_document
 <!-- badges: end -->
 
 
-
 ## arranger
 
-The {arranger} package provides a UI for arranging files. More details are coming soon.
+The {arranger} package provides a UI for arranging files, beginning with Rtf files. More details are coming soon.
