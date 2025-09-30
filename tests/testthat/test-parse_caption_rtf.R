@@ -16,3 +16,12 @@ test_that("single table caption returned", {
 
 
 
+
+# Test when caption is missing
+test_that("caption missing", {
+  x <- "my captionless text"
+  res_caption <- parse_caption_rtf(x)
+  expect_true(is.na(res_caption))
+})
+
+

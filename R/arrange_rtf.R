@@ -94,21 +94,24 @@ arrange_rtf <- function(path_save){
     path_temp_rtf <- file.path(tempdir(), sample(1000:9099,1))
     dir.create(path_temp_rtf)
 
+
     # Put table/rtf info in a nice format for display
     data_files <- reactive({
       if(length(file_info())==0){
         return(NULL)
       } else{
 
-        # Place uploaded file info into a tibble
-        rtf_upload <- tibble(file_info())
+        # # Place uploaded file info into a tibble
+        # rtf_upload <- tibble(file_info())
+        #
+        # # Copy uploaded files to path_temp_rtf
+        # FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
+        # c1          <- file.copy(rtf_upload$datapath, FilePathNew)
+        #
+        # # In case of multiple RTF selections, get the list of files again
+        # FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
 
-        # Copy uploaded files to path_temp_rtf
-        FilePathNew <- file.path(path_temp_rtf, rtf_upload$name)
-        c1          <- file.copy(rtf_upload$datapath, FilePathNew)
-
-        # In case of multiple RTF selections, get the list of files again
-        FilePathReNew <- normalizePath(list.files(path_temp_rtf, full.names=TRUE))
+        FilePathReNew <- fpath_format(file_info(), path_temp_rtf)
 
         # Load RTF files as vectors of strings into a list
         files_rtf <- lapply(FilePathReNew, read_rtf)
@@ -184,6 +187,44 @@ arrange_rtf <- function(path_save){
 
   shinyApp(ui=ui, server=server)
 }
+
+
+
+fpath_format <- function(file_info, path_temp){
+  # Place uploaded file info into a tibble
+  files_upload <- tibble(file_info)
+
+  # Copy uploaded files to path_temp
+  FilePathNew <- file.path(path_temp, files_upload$name)
+  c1          <- file.copy(files_upload$datapath, FilePathNew)
+
+  # In case of multiple selections, get the list of files again
+  FilePathReNew <- normalizePath(list.files(path_temp, full.names=TRUE))
+
+  FilePathReNew
+}
+
+
+
+fname_format_rtf <- function(FilePathReNew){
+
+  # Load RTF files as vectors of strings into a list
+  files_rtf <- lapply(FilePathReNew, read_rtf)
+
+  # Format files for display
+  file_order <- tibble(`File Name`  = basename(FilePathReNew),
+                       `Table Name` = unlist(sapply(files_rtf, parse_caption_rtf)),
+                       FilePath     = FilePathReNew)
+
+  file_order$`Table Name` <- ifelse(is.na(file_order$`Table Name`),
+                                    file_order$`File Name`,
+                                    file_order$`Table Name`)
+
+  file_order
+}
+
+
+
 
 
 
